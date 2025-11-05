@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/Arthi-chaud/Meelo/scanner/internal/api"
 	"github.com/Arthi-chaud/Meelo/scanner/internal/tasks"
 	"github.com/rs/zerolog/log"
@@ -29,7 +31,10 @@ func OnLibraryEvent(triggerPath string, eventType EventType, l api.Library, s *S
 	case Renamed:
 		tasksToAdd = append(tasksToAdd, tasks.NewLibraryCleanTask(l, *s.config), tasks.NewLibraryScanTask(l, *s.config))
 	case Modified:
-		break // TODO refresh metadata
+		// TODO Try to select only related track
+		tasksToAdd = append(tasksToAdd,
+			tasks.NewMetadataRefreshTask(api.FileSelectorDto{Library: strconv.Itoa(l.Id)}, false, *s.config))
+		break
 	case Create:
 		tasksToAdd = append(tasksToAdd, tasks.NewLibraryScanTask(l, *s.config))
 	case Deleted:
